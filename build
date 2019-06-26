@@ -1,0 +1,10 @@
+#!/bin/sh -xe
+
+if [ ! -d "builddir" ];
+then
+	meson --prefix "$PWD" --bindir . builddir
+else
+	meson --prefix "$PWD" --bindir . --reconfigure builddir
+fi
+
+ninja -C builddir install
