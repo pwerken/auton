@@ -44,7 +44,7 @@ create_grip(struct libevdev *dev)
 	libevdev_enable_event_type(sim, EV_KEY);
 	libevdev_enable_event_code(sim, EV_KEY, BTN_TRIGGER, NULL);
 	libevdev_enable_event_code(sim, EV_KEY, BTN_THUMB, NULL);
-	for(int i = 0; i < 30; i++)
+	for(int i = 2; i < 32; i++)
 		libevdev_enable_event_code(sim, EV_KEY, BTN_TRIGGER_HAPPY + i, NULL);
 
 #define copy_abs(X) \
@@ -84,7 +84,7 @@ create_base(struct libevdev *dev)
 	libevdev_enable_event_type(sim, EV_KEY);
 	libevdev_enable_event_code(sim, EV_KEY, BTN_TRIGGER, NULL);
 	libevdev_enable_event_code(sim, EV_KEY, BTN_THUMB, NULL);
-	for(int i = 0; i < 27; i++)
+	for(int i = 2; i < 32; i++)
 		libevdev_enable_event_code(sim, EV_KEY, BTN_TRIGGER_HAPPY + i, NULL);
 
 #define copy_abs(X, Y) \
@@ -129,7 +129,7 @@ to_grip(struct libevdev_uinput *grip, struct input_event *ev)
 			case BTN_TRIGGER:
 			case BTN_THUMB:
 				break; // ok
-			case BTN_THUMB2:
+			case BTN_THUMB2:	// -> BTN_TRIGGER_HAPPY3
 			case BTN_TOP:
 			case BTN_TOP2:
 			case BTN_PINKIE:
@@ -143,9 +143,9 @@ to_grip(struct libevdev_uinput *grip, struct input_event *ev)
 			case 301:
 			case 302:
 			case BTN_DEAD:
-				ev->code += 414;
+				ev->code += 416;
 				break;
-			case BTN_TRIGGER_HAPPY1:
+			case BTN_TRIGGER_HAPPY1:	// -> BTN_TRIGGER_HAPPY17
 			case BTN_TRIGGER_HAPPY2:
 			case BTN_TRIGGER_HAPPY3:
 			case BTN_TRIGGER_HAPPY4:
@@ -161,7 +161,7 @@ to_grip(struct libevdev_uinput *grip, struct input_event *ev)
 			case BTN_TRIGGER_HAPPY14:
 			case BTN_TRIGGER_HAPPY15:
 			case BTN_TRIGGER_HAPPY16:
-				ev->code += 14;
+				ev->code += 16;
 				break;
 			default:
 				return; // rest nope
@@ -190,11 +190,9 @@ to_base(struct libevdev_uinput *grip, struct input_event *ev)
 		}
 	} else if (ev->type == EV_KEY) {
 		switch (ev->code) {
-			case BTN_TRIGGER_HAPPY17:
-			case BTN_TRIGGER_HAPPY18:
-				ev->code -= 432;
-				break; // ok
-			case BTN_TRIGGER_HAPPY19:
+			case BTN_TRIGGER_HAPPY17: ev->code = BTN_TRIGGER; break;
+			case BTN_TRIGGER_HAPPY18: ev->code = BTN_THUMB;   break;
+			case BTN_TRIGGER_HAPPY19: // -> BTN_TRIGGER_HAPPY3
 			case BTN_TRIGGER_HAPPY20:
 			case BTN_TRIGGER_HAPPY21:
 			case BTN_TRIGGER_HAPPY22:
@@ -221,7 +219,7 @@ to_base(struct libevdev_uinput *grip, struct input_event *ev)
 			case 746:
 			case 747:
 			case 748:
-				ev->code -= 18;
+				ev->code -= 16;
 				break; // ok
 			default:
 				return; // rest nope
