@@ -269,8 +269,8 @@ main(int argc, char **argv)
 	}
 
 	if (libevdev_get_id_vendor(dev) != 0x03eb
-	|| libevdev_get_id_product(dev) != 0x2047) {
-		fprintf(stderr, "Will only work on device with 0x03eb:0x2047\n");
+	|| libevdev_get_id_product(dev) != 0x2043) {
+		fprintf(stderr, "Will only work on device with 0x03eb:0x2043\n");
 		goto out;
 	}
 
