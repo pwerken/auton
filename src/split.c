@@ -109,12 +109,17 @@ create_base(struct libevdev *dev)
 }
 
 static void
-to_grip(struct libevdev_uinput *grip, struct input_event *ev)
+to_grip(struct libevdev_uinput *grip, const struct input_event *in)
 {
-	if (ev->type == EV_SYN) {
+	struct input_event out;
+	out.type = in->type;
+	out.code = in->code;
+	out.value = in->value;
+
+	if (out.type == EV_SYN) {
 		// ok
-	} else if (ev->type == EV_ABS) {
-		switch (ev->code) {
+	} else if (out.type == EV_ABS) {
+		switch (out.code) {
 		case ABS_X:
 		case ABS_Y:
 		case ABS_Z:
@@ -124,8 +129,8 @@ to_grip(struct libevdev_uinput *grip, struct input_event *ev)
 		default:
 			return; // rest nope
 		}
-	} else if (ev->type == EV_KEY) {
-		switch (ev->code) {
+	} else if (out.type == EV_KEY) {
+		switch (out.code) {
 			case BTN_TRIGGER:
 			case BTN_THUMB:
 				break; // ok
@@ -143,7 +148,7 @@ to_grip(struct libevdev_uinput *grip, struct input_event *ev)
 			case 301:
 			case 302:
 			case BTN_DEAD:
-				ev->code += 416;
+				out.code += 416;
 				break;
 			case BTN_TRIGGER_HAPPY1:	// -> BTN_TRIGGER_HAPPY17
 			case BTN_TRIGGER_HAPPY2:
@@ -161,7 +166,7 @@ to_grip(struct libevdev_uinput *grip, struct input_event *ev)
 			case BTN_TRIGGER_HAPPY14:
 			case BTN_TRIGGER_HAPPY15:
 			case BTN_TRIGGER_HAPPY16:
-				ev->code += 16;
+				out.code += 16;
 				break;
 			default:
 				return; // rest nope
@@ -169,29 +174,34 @@ to_grip(struct libevdev_uinput *grip, struct input_event *ev)
 	} else {
 		return;	// nope
 	}
-	libevdev_uinput_write_event(grip, ev->type, ev->code, ev->value);
+	libevdev_uinput_write_event(grip, out.type, out.code, out.value);
 }
 
 static void
-to_base(struct libevdev_uinput *grip, struct input_event *ev)
+to_base(struct libevdev_uinput *grip, const struct input_event *in)
 {
-	if (ev->type == EV_SYN) {
+	struct input_event out;
+	out.type = in->type;
+	out.code = in->code;
+	out.value = in->value;
+
+	if (out.type == EV_SYN) {
 		// ok
-	} else if (ev->type == EV_ABS) {
-		switch (ev->code) {
-		case ABS_RX:       ev->code = ABS_X;  break;
-		case ABS_RY:       ev->code = ABS_Y;  break;
-		case ABS_RZ:       ev->code = ABS_Z;  break;
-		case ABS_THROTTLE: ev->code = ABS_RX; break;
-		case ABS_RUDDER:   ev->code = ABS_RY; break;
+	} else if (out.type == EV_ABS) {
+		switch (out.code) {
+		case ABS_RX:       out.code = ABS_X;  break;
+		case ABS_RY:       out.code = ABS_Y;  break;
+		case ABS_RZ:       out.code = ABS_Z;  break;
+		case ABS_THROTTLE: out.code = ABS_RX; break;
+		case ABS_RUDDER:   out.code = ABS_RY; break;
 			break; // ok
 		default:
 			return; // rest nope
 		}
-	} else if (ev->type == EV_KEY) {
-		switch (ev->code) {
-			case BTN_TRIGGER_HAPPY17: ev->code = BTN_TRIGGER; break;
-			case BTN_TRIGGER_HAPPY18: ev->code = BTN_THUMB;   break;
+	} else if (out.type == EV_KEY) {
+		switch (out.code) {
+			case BTN_TRIGGER_HAPPY17: out.code = BTN_TRIGGER; break;
+			case BTN_TRIGGER_HAPPY18: out.code = BTN_THUMB;   break;
 			case BTN_TRIGGER_HAPPY19: // -> BTN_TRIGGER_HAPPY3
 			case BTN_TRIGGER_HAPPY20:
 			case BTN_TRIGGER_HAPPY21:
@@ -219,7 +229,7 @@ to_base(struct libevdev_uinput *grip, struct input_event *ev)
 			case 746:
 			case 747:
 			case 748:
-				ev->code -= 16;
+				out.code -= 16;
 				break; // ok
 			default:
 				return; // rest nope
@@ -227,7 +237,7 @@ to_base(struct libevdev_uinput *grip, struct input_event *ev)
 	} else {
 		return;	// nope
 	}
-	libevdev_uinput_write_event(grip, ev->type, ev->code, ev->value);
+	libevdev_uinput_write_event(grip, out.type, out.code, out.value);
 }
 
 int
